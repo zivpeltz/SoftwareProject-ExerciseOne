@@ -1,7 +1,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
-#include <math.h>
 #include <stdlib.h>
+#include <math.h>
 
 
 struct cord
@@ -23,14 +23,24 @@ int is_digit(char *str){
     return 1;
 }
 
-double calculateDistance(double p[], double q[], int n){
-    int i = 0;
+void print_centroids(int k, int dim, double m[k][dim]){
+    for (int i = 0; i < k; i++){
+        for (int j = 0; j < dim; j++){
+            if (j == dim - 1) printf("%.4f", m[i][j]);
+            else printf("%.4f,", m[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+double calculate_distance(double p[], double q[], int n){
     double sum = 0.0;
-    for (i = 0; i < n; ++i){
-        sum += (p[i]-q[i])*(p[i]-q[i]);
+    for (int i = 0; i < n; i++){
+        sum += (p[i] - q[i]) * (p[i] - q[i]);
     }
     return sqrt(sum);
 }
+
 struct vector *read_points(void){
     struct vector *head_vec, *curr_vec, *next_vec;
     struct cord *head_cord, *curr_cord, *next_cord;
@@ -96,6 +106,4 @@ int main(int argc, char *argv[]){
         return 0;
     }
 
-    return 0;
-}
 
