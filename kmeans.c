@@ -33,6 +33,20 @@ void print_centroids(int k, int dim, double m[k][dim]){
     }
 }
 
+double *update_centroids(int lenC, int dim, double m[lenC][dim]){
+    double *updated_centroid = malloc(sizeof(double) * 4);
+    int i=0, j=0;
+    double sum=0.0;
+    for (i; i<dim; ++i){
+        sum=0.0;
+        for (j=0;j<lenC;++j){
+            sum+= m[j][i];
+        }
+        updated_centroid[i]=sum/lenC;
+    }
+    return updated_centroid
+}
+
 double calculate_distance(double p[], double q[], int n){
     double sum = 0.0;
     for (int i = 0; i < n; i++){
