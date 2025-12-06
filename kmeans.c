@@ -100,10 +100,10 @@ int main(int argc, char *argv[]){
             printf("Incorrect maximum iteration!");
             return 0;
         }
-    iter = atoi(argv[2]);
-    if(iter < 2 || iter > 799){
-        printf("Incorrect maximum iteration!");
-        return 0;
+        iter = atoi(argv[2]);
+        if(iter < 2 || iter > 799){
+            printf("Incorrect maximum iteration!");
+            return 0;
+        }
     }
-
-
+}
