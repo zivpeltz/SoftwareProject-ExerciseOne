@@ -35,6 +35,9 @@ void print_centroids(int k, int dim, double m[k][dim]){
 
 double *update_centroids(int lenC, int dim, double m[lenC][dim]){
     double *updated_centroid = malloc(sizeof(double) * 4);
+    if (updated_centroid == NULL){
+        return NULL;
+    }
     int i=0, j=0;
     double sum=0.0;
     for (i; i<dim; ++i){
@@ -42,7 +45,7 @@ double *update_centroids(int lenC, int dim, double m[lenC][dim]){
         for (j=0;j<lenC;++j){
             sum+= m[j][i];
         }
-        updated_centroid[i]=sum/lenC;
+        updated_centroid[i] = sum/lenC;
     }
     return updated_centroid;
 }
@@ -180,6 +183,33 @@ int find_closest_cluster(double **centroids, double *point ,int cluster_num, int
     }
     return closest_cluster_index;
 }
+
+
+void cluster_handle(int k, int iter, int num_of_points, int dim, double **points){
+    int i,j;
+    double **centroids, **clusters;
+    centroids = malloc(sizeof(double) * k);
+    if (!centroids) {
+        return NULL;
+    }
+    for(i = 0; i < k; i++){
+        centroids[i] = points[i];
+    }
+
+    for (i = 0; i < iter; i++){
+
+    }
+
+
+
+
+}
+
+
+
+
+
+
 
 int main(int argc, char *argv[]){
     int k,iter;
