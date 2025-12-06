@@ -18,12 +18,15 @@ def parse_points():
         s = sys.stdin.readline()
     return points_arr
 
+def update_centoid(cluster):
+    pass
 
-
-
-
-
-
+def cluster_handle(K,iter,N,points_arr):
+    centroids =[0 for i in range(K)]
+    clusters=[[] for i in range(K)]
+    for i in range(K):
+        centroids[i]=points_arr[i]
+        clusters[i].append(points_arr[i])
 
 def main():
     k = sys.argv[1]
@@ -48,12 +51,10 @@ def main():
     if (k < 2 or k > N-1):
         print("Incorrect number of clusters!")
         return
-
-
-
-
-
-
+    
+    cluster_handle(k,iter,N,points_arr)
+    
+    
 
 if __name__=="__main__":
     main()
