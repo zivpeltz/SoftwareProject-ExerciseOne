@@ -1,0 +1,59 @@
+import sys
+
+def calculate_distance(p,q): #p and q are arrays representing points
+    sum = 0
+    for i in range(len(p)):
+        sum += (p[i]-q[i])**2
+    return (sum)**0.5
+
+def parse_points():
+    points_arr = []
+    s = sys.stdin.readline()
+    while (s != ""):
+        temp = s.strip()
+        temp = temp.split(",")
+        for i in range(len(temp)):
+            temp[i]=float(temp[i])
+        points_arr.append(temp)
+        s = sys.stdin.readline()
+    return points_arr
+
+
+
+
+
+
+
+
+def main():
+    k = sys.argv[1]
+    if(not k.isdigit()):
+        print("Incorrect number of clusters!")
+        return
+    k = int(k)
+
+    iter = sys.argv[2]
+    if (not iter.isdigit()):
+        print("Incorrect maximum iteration!")
+        return
+    iter = int(iter)
+    if (iter < 2 or iter > 799):
+        print("Incorrect maximum iteration!")
+        return
+
+    points_arr = parse_points()
+    N = len(points_arr)
+    d = len(points_arr[0])
+
+    if (k < 2 or k > N-1):
+        print("Incorrect number of clusters!")
+        return
+
+    
+
+
+
+
+
+if __name__=="__main__":
+    main()
