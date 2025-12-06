@@ -1,5 +1,6 @@
 import sys
 
+
 def calculate_distance(p,q): #p and q are arrays representing points
     sum = 0
     for i in range(len(p)):
@@ -21,7 +22,7 @@ def parse_points():
 def update_centroid(cluster):
     dim = len(cluster[0])
     num_of_points = len(cluster)
-    updated_centroid = []*dim
+    updated_centroid = [0 for i in range(dim)]
 
     for cord in range(dim):
         sum = 0
@@ -41,12 +42,50 @@ def find_closest_cluster(centroids, point): #recieves centroids and a point and 
             close_cluster_index=i
     return close_cluster_index
 
-def cluster_handle(K,iter,N,points_arr):
-    centroids =[0 for i in range(K)]
-    clusters=[[] for i in range(K)]
+def print_centroids(centroids):
+    for point in centroids:
+        s = ""
+        for cord in point:
+            s = s + f"{cord:.4f}" + ","
+        s = s[0:-1]
+        print(s)
+
+
+
+def cluster_handle(K , iter , N , points_arr):
+
+    centroids = [0 for i in range(K)]
+    clusters = [[] for i in range(K)]
     for i in range(K):
-        centroids[i]=points_arr[i]
-        clusters[i].append(points_arr[i])
+        centroids[i] = points_arr[i]
+    for iteration in range(iter):
+
+        temp_clusters = [[] for i in range(K)]
+        for point in points_arr:
+            index = find_closest_cluster(centroids,point)
+            temp_clusters[index].append(point)
+
+        clusters = temp_clusters
+        convergence = True
+
+        for i in range(K):
+            updated_centroid = update_centroid(clusters[i])
+
+            for cord in range(len(updated_centroid)):
+                if abs(centroids[i][cord]-updated_centroid[cord]) >= 0.001:
+                    convergence = False
+
+            centroids[i] = updated_centroid
+
+        if convergence:
+            break
+
+    print_centroids(centroids)
+
+
+
+
+
 
 
 def main():
@@ -56,14 +95,17 @@ def main():
         return
     k = int(k)
 
-    iter = sys.argv[2]
-    if (not iter.isdigit()):
-        print("Incorrect maximum iteration!")
-        return
-    iter = int(iter)
-    if (iter < 2 or iter > 799):
-        print("Incorrect maximum iteration!")
-        return
+    if(len(sys.argv)==3):
+        iter = sys.argv[2]
+        if (not iter.isdigit()):
+            print("Incorrect maximum iteration!")
+            return
+        iter = int(iter)
+        if (iter < 2 or iter > 799):
+            print("Incorrect maximum iteration!")
+            return
+    else:
+        iter = 400
 
     points_arr = parse_points()
     N = len(points_arr)
