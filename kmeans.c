@@ -44,7 +44,7 @@ double *update_centroids(int lenC, int dim, double m[lenC][dim]){
         }
         updated_centroid[i]=sum/lenC;
     }
-    return updated_centroid
+    return updated_centroid;
 }
 
 double calculate_distance(double p[], double q[], int n){
@@ -168,11 +168,11 @@ double **parse_points(){
 
 
 
-int find_closest_cluster(double **centroids, double *point,int cluster_num){
+int find_closest_cluster(double **centroids, double *point ,int cluster_num, int dim){
     int i, distance, temp_distance, closest_cluster_index = 0;
-    distance = calculate_distance(point[0], centroids);
+    distance = calculate_distance(point, centroids[0], dim);
     for (i = 1; i < cluster_num ; i++) {
-        temp_distance = calculate_distance(centroids[i], point);
+        temp_distance = calculate_distance(centroids[i], point,dim);
         if (temp_distance < distance) {
             distance = temp_distance;
             closest_cluster_index = i;
