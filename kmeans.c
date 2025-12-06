@@ -152,6 +152,21 @@ double **parse_points(){
     return points_arr;
 }
 
+
+
+int find_closest_cluster(double **centroids, double *point,int cluster_num){
+    int i, distance, temp_distance, closest_cluster_index = 0;
+    distance = calculate_distance(point[0], centroids);
+    for (i = 1; i < cluster_num ; i++) {
+        temp_distance = distance(centroids[i], point);
+        if (temp_distance < distance) {
+            distance = temp_distance;
+            closest_cluster_index = i;
+        }
+    }
+    return closest_cluster_index;
+}
+
 int main(int argc, char *argv[]){
     int k,iter;
 
