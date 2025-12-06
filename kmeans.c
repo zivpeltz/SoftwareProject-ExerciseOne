@@ -82,9 +82,74 @@ struct vector *read_points(void){
     return head_vec;
 }
 
-double **parse_points(){
-    struct vector *points = read_points();
+int count_dimensions(struct cord *v){
+    int count = 0;
+    while (v != NULL) {
+        count++;
+        v = v->next;
+    }
+    return count;
+}
 
+int count_points(struct vector *v){
+    int count = 0;
+    while (v != NULL) {
+        count++;
+        v = v->next;
+    }
+    return count;
+}
+
+
+
+double **parse_points(){
+    int dim,num_of_points;
+    int i,j;
+    double **points_arr;
+    struct vector *curr_point,*points,*temp_point;
+    struct cord *curr_cord,*temp_cord;
+
+    points = read_points();
+    points = read_points();
+    if (points == NULL || points->cords == NULL) {
+        return NULL;
+    }
+
+    dim = count_dimensions(points->cords);
+    num_of_points = count_points(points);
+
+    points_arr = malloc(num_of_points * sizeof(double *));
+    if (!points_arr) {
+        return NULL; // allocation failed
+    }
+
+    for ( i = 0; i < num_of_points; i++){
+        points_arr[i] = malloc(dim * sizeof(double));
+        if (!points_arr[i]) {
+            // handle partial failure: free previous rows
+            int k;
+            for (k = 0; k < i; k++) {
+                free(points_arr[k]);
+            }
+            free(points_arr);
+            return NULL;
+        }
+    }
+
+    curr_point = points;
+    for (i = 0; i < num_of_points; i++){
+        temp_point = curr_point;
+        curr_cord = curr_point->cords;
+        for (j = 0; j < dim; j++){
+            points_arr[i][j] = curr_cord->value;
+            temp_cord = curr_cord;
+            curr_cord = curr_cord->next;
+            free(temp_cord);
+        }
+        curr_point = curr_point->next;
+        free(temp_point);
+    }
+    return points_arr;
 }
 
 int main(int argc, char *argv[]){
