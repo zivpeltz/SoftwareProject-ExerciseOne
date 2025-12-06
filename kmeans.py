@@ -31,12 +31,23 @@ def update_centroid(cluster):
 
     return updated_centroid
 
+def find_closest_cluster(centroids, point): #recieves centroids and a point and returns the index of the closest centroid
+    close_cluster_index=0
+    distance=calculate_distance(centroids[0],point)
+    for i in range(1,len(centroids)):
+        temp_dis=calculate_distance(centroids[i],point)
+        if temp_dis<distance:
+            distance=temp_dis
+            close_cluster_index=i
+    return close_cluster_index
+
 def cluster_handle(K,iter,N,points_arr):
     centroids =[0 for i in range(K)]
     clusters=[[] for i in range(K)]
     for i in range(K):
         centroids[i]=points_arr[i]
         clusters[i].append(points_arr[i])
+
 
 def main():
     k = sys.argv[1]
