@@ -2,15 +2,15 @@ import sys
 
 
 def calculate_distance(p,q): #p and q are arrays representing points
-    sum = 0
+    sum_of_deltas = 0
     for i in range(len(p)):
-        sum += (p[i]-q[i])**2
-    return (sum)**0.5
+        sum_of_deltas += (p[i] - q[i]) ** 2
+    return sum_of_deltas**0.5
 
 def parse_points():
     points_arr = []
     s = sys.stdin.readline()
-    while (s != ""):
+    while s != "":
         temp = s.strip()
         temp = temp.split(",")
         for i in range(len(temp)):
@@ -25,10 +25,10 @@ def update_centroid(cluster):
     updated_centroid = [0 for i in range(dim)]
 
     for cord in range(dim):
-        sum = 0
+        sum_of_cord = 0
         for point in range(num_of_points):
-            sum += cluster[point][cord]
-        updated_centroid[cord] = (sum)/num_of_points
+            sum_of_cord += cluster[point][cord]
+        updated_centroid[cord] = sum_of_cord / num_of_points
 
     return updated_centroid
 
@@ -52,15 +52,15 @@ def print_centroids(centroids):
 
 
 
-def cluster_handle(K , iter , N , points_arr):
+def cluster_handle(k , iter , N , points_arr):
 
-    centroids = [0 for i in range(K)]
-    clusters = [[] for i in range(K)]
-    for i in range(K):
+    centroids = [0 for i in range(k)]
+    clusters = [[] for i in range(k)]
+    for i in range(k):
         centroids[i] = points_arr[i]
     for iteration in range(iter):
 
-        temp_clusters = [[] for i in range(K)]
+        temp_clusters = [[] for i in range(k)]
         for point in points_arr:
             index = find_closest_cluster(centroids,point)
             temp_clusters[index].append(point)
@@ -68,7 +68,7 @@ def cluster_handle(K , iter , N , points_arr):
         clusters = temp_clusters
         convergence = True
 
-        for i in range(K):
+        for i in range(k):
             updated_centroid = update_centroid(clusters[i])
 
             for cord in range(len(updated_centroid)):
@@ -90,18 +90,18 @@ def cluster_handle(K , iter , N , points_arr):
 
 def main():
     k = sys.argv[1]
-    if(not k.isdigit()):
+    if not k.isdigit():
         print("Incorrect number of clusters!")
         return
     k = int(k)
 
-    if(len(sys.argv)==3):
+    if len(sys.argv)==3:
         iter = sys.argv[2]
-        if (not iter.isdigit()):
+        if not iter.isdigit():
             print("Incorrect maximum iteration!")
             return
         iter = int(iter)
-        if (iter < 2 or iter > 799):
+        if iter < 2 or iter > 799:
             print("Incorrect maximum iteration!")
             return
     else:
@@ -110,11 +110,11 @@ def main():
     points_arr = parse_points()
     N = len(points_arr)
 
-    if (k < 2 or k > N-1):
+    if k < 2 or k > N-1:
         print("Incorrect number of clusters!")
         return
-    
-    cluster_handle(k,iter,N,points_arr)
+
+    cluster_handle(k, iter, N, points_arr)
     
     
 
