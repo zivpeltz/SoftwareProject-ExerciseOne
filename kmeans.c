@@ -295,7 +295,7 @@ int main(int argc, char *argv[]){
     int i,k,iter;
     double **points;
     if (argc != 2 && argc != 3) {
-        printf("An Error Has Occurred!");
+        printf("An Error Has Occurred");
         return 0;
     }
     if (!is_digit(argv[1])){
@@ -306,12 +306,12 @@ int main(int argc, char *argv[]){
     if (argc == 3){
         if (!is_digit(argv[2])){
             printf("Incorrect maximum iteration!");
-            return 0;
+            return 1;
         }
         iter = atoi(argv[2]);
         if(iter < 2 || iter > 799){
             printf("Incorrect maximum iteration!");
-            return 0;
+            return 1;
         }
     }
     if (argc == 2){
@@ -319,14 +319,14 @@ int main(int argc, char *argv[]){
     }
     points = parse_points();
     if (!points) {
-        printf("An Error Has Occurred!");
-        return 0;
+        printf("An Error Has Occurred");
+        return 1;
     }
     if (k <= 1 || k >= global_num_of_points){
         printf("Incorrect number of clusters!");
         for (i = 0; i < global_num_of_points; i++) free(points[i]);
         free(points);
-        return 0;
+        return 1;
     }
     cluster_handle(k, iter, global_num_of_points, global_dim , points);
     for (i = 0; i < global_num_of_points; i++) free(points[i]);
