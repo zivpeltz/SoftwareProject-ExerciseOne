@@ -52,7 +52,7 @@ def print_centroids(centroids):
 
 
 
-def cluster_handle(k , iter , N , points_arr):
+def cluster_handle(k , iter , points_arr):
 
     centroids = [0 for i in range(k)]
     clusters = [[] for i in range(k)]
@@ -114,7 +114,7 @@ def main():
         print("Incorrect number of clusters!")
         return
 
-    cluster_handle(k, iter, N, points_arr)
+    cluster_handle(k, iter, points_arr)
     
     
 
