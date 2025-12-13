@@ -83,6 +83,7 @@ struct vector *read_points(void){
     head_vec = malloc(sizeof(struct vector));
     curr_vec = head_vec;
     curr_vec->next = NULL;
+    head_vec->cords = NULL;
 
 
     while (scanf("%lf%c", &n, &c) == 2)
@@ -95,6 +96,7 @@ struct vector *read_points(void){
             curr_vec->next = malloc(sizeof(struct vector));
             curr_vec = curr_vec->next;
             curr_vec->next = NULL;
+            curr_vec->cords = NULL;
             head_cord = malloc(sizeof(struct cord));
             curr_cord = head_cord;
             curr_cord->next = NULL;
@@ -122,7 +124,7 @@ int count_dimensions(struct cord *v){
 int count_points(struct vector *v){
     int count = 0;
     while (v != NULL) {
-        count++;
+        if (v->cords != NULL) count++;
         v = v->next;
     }
     return count;
@@ -184,7 +186,8 @@ double **parse_points(){
 
 
 int find_closest_cluster(double **centroids, double *point ,int cluster_num, int dim){
-    int i, distance, temp_distance, closest_cluster_index = 0;
+    int i, closest_cluster_index = 0;
+    double distance, temp_distance;
     distance = calculate_distance(point, centroids[0], dim);
     for (i = 1; i < cluster_num ; i++) {
         temp_distance = calculate_distance(centroids[i], point,dim);
@@ -216,16 +219,16 @@ int *count_cluster_points(int k , double **centroids ,double **points, int dim, 
 void cluster_handle(int k, int iter, int num_of_points, int dim, double **points){
     int i,j,l, curr,convergence;
     int *counter_arr, *counter_arr_copy;
-    double **centroids, **updated_centroids, ***clusters;
+    double **centroids, **updated_centroids, ***clusters, *old;
     clusters = malloc(sizeof(double **)*k);
     if (!clusters) {
         return;
     }
-    centroids = malloc(sizeof(double) * k);
+    centroids = malloc(sizeof(double*) * k);
     if (!centroids) {
         return;
     }
-    updated_centroids = malloc(sizeof(double) * k);
+    updated_centroids = malloc(sizeof(double*) * k);
     if (!updated_centroids) {
         return;
     }
@@ -233,15 +236,17 @@ void cluster_handle(int k, int iter, int num_of_points, int dim, double **points
     if (!counter_arr_copy) {
         return;
     }
-    for(i = 0; i < k; i++){
-        centroids[i] = points[i];
+    for (i = 0; i < k; i++) {
+        centroids[i] = malloc(dim * sizeof(double));
+        for (l = 0; l < dim; l++) centroids[i][l] = points[i][l];
     }
 
     for (i = 0; i < iter; i++){
         counter_arr = count_cluster_points(k, centroids, points, dim, num_of_points);
+        for (j = 0; j < k; j++) counter_arr_copy[j] = counter_arr[j]; /*hard copy the array of counters*/
         for (j = 0; j < k; j++){
-            clusters[j] = malloc(sizeof(double *) * counter_arr[j]);
-            if (!clusters[j]) {
+            clusters[j] = (counter_arr[j] == 0) ? NULL : malloc(sizeof(double*) * counter_arr[j]);
+            if (counter_arr[j] != 0 && !clusters[j]) {
                 free(centroids);
                 free(counter_arr);
                 return;
@@ -251,40 +256,54 @@ void cluster_handle(int k, int iter, int num_of_points, int dim, double **points
             curr = find_closest_cluster(centroids, points[j], k , dim);
             clusters[curr][counter_arr[curr]-1] = points[j];
             counter_arr[curr]--;
-            counter_arr_copy[curr]++; /* this is instead of having its own loop, probably more efficien this way */
         }
         convergence = 1;
         for (j = 0 ; j < k ; j++){
-            updated_centroids[j] = update_centroid(counter_arr_copy[j], dim, clusters[j]);
-            for (l=0; l < dim; l++){
-                if(fabs(centroids[j][l] - updated_centroids[j][l]) >= 0.001){
-                    convergence = 0;
+            if (counter_arr_copy[j] == 0) {
+                updated_centroids[j] = centroids[j];
+            }
+            else {
+                updated_centroids[j] = update_centroid(counter_arr_copy[j], dim, clusters[j]);
+                for (l=0; l < dim; l++){
+                    if(fabs(centroids[j][l] - updated_centroids[j][l]) >= 0.001){
+                        convergence = 0;
+                    }
                 }
             }
+            old = centroids[j];
             centroids[j] = updated_centroids[j];
+            if (centroids[j] != old) free(old);
         }
+        for (l = 0; l < k; l++) free(clusters[l]);
+        free(counter_arr);
         if (convergence == 1) break;
     }
     print_centroids(k,dim,centroids);
     free(counter_arr_copy);
     free(updated_centroids);
-    free(counter_arr);
+    free(clusters);
+
+    for (j = 0; j < k; j++) free(centroids[j]);
     free(centroids);
+
 }
 
 
 
 
 int main(int argc, char *argv[]){
-    int k,iter;
+    int i,k,iter;
     double **points;
+    if (argc != 2 && argc != 3) {
+        printf("An Error Has Occurred!");
+        return 0;
+    }
     if (!is_digit(argv[1])){
         printf("Incorrect number of clusters!");
         return 0;
     }
     k = atoi(argv[1]);
-    printf("%d", argc);
-    if (argc <= 3){
+    if (argc == 3){
         if (!is_digit(argv[2])){
             printf("Incorrect maximum iteration!");
             return 0;
@@ -295,9 +314,22 @@ int main(int argc, char *argv[]){
             return 0;
         }
     }
-    printf("%d", iter);
+    if (argc == 2){
+        iter = 400;
+    }
     points = parse_points();
+    if (!points) {
+        printf("An Error Has Occurred!");
+        return 0;
+    }
+    if (k <= 1 || k >= global_num_of_points){
+        printf("Incorrect number of clusters!");
+        for (i = 0; i < global_num_of_points; i++) free(points[i]);
+        free(points);
+        return 0;
+    }
     cluster_handle(k, iter, global_num_of_points, global_dim , points);
+    for (i = 0; i < global_num_of_points; i++) free(points[i]);
     free(points);
     return 0;
 }
