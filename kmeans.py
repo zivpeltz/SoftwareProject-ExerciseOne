@@ -7,14 +7,30 @@ def calculate_distance(p,q): #p and q are arrays representing points
         sum_of_deltas += (p[i] - q[i]) ** 2
     return sum_of_deltas**0.5
 
+
+def is_float(value):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
+
+
 def parse_points():
     points_arr = []
     s = sys.stdin.readline()
     while s != "":
+        if s == "\n":
+            s = sys.stdin.readline()
+            continue
         temp = s.strip()
         temp = temp.split(",")
         for i in range(len(temp)):
-            temp[i]=float(temp[i])
+            if not is_float(temp[i]):
+                print("An Error Has Occurred")
+                raise SystemExit(1)
+            temp[i] = float(temp[i])
+
         points_arr.append(temp)
         s = sys.stdin.readline()
     return points_arr
@@ -22,6 +38,7 @@ def parse_points():
 def update_centroid(cluster):
     dim = len(cluster[0])
     num_of_points = len(cluster)
+
     updated_centroid = [0 for i in range(dim)]
 
     for cord in range(dim):
@@ -69,7 +86,10 @@ def cluster_handle(k , iter , points_arr):
         convergence = True
 
         for i in range(k):
-            updated_centroid = update_centroid(clusters[i])
+            if (len(clusters[i]) == 0):
+                updated_centroid = points_arr[0]
+            else:
+                updated_centroid = update_centroid(clusters[i])
 
             for cord in range(len(updated_centroid)):
                 if abs(centroids[i][cord]-updated_centroid[cord]) >= 0.001:
@@ -89,30 +109,41 @@ def cluster_handle(k , iter , points_arr):
 
 
 def main():
+    if len(sys.argv) == 1 or len(sys.argv) > 3:
+        print("An Error Has Occurred")
+        raise SystemExit(1)
+
     k = sys.argv[1]
     if not k.isdigit():
         print("Incorrect number of clusters!")
-        return
+        raise SystemExit(1)
+
     k = int(k)
 
     if len(sys.argv)==3:
         iter = sys.argv[2]
         if not iter.isdigit():
             print("Incorrect maximum iteration!")
-            return
+            raise SystemExit(1)
         iter = int(iter)
         if iter < 2 or iter > 799:
             print("Incorrect maximum iteration!")
-            return
+            raise SystemExit(1)
     else:
         iter = 400
 
     points_arr = parse_points()
+
+
     N = len(points_arr)
+
+    if N <= 1:
+        print("An Error Has Occurred")
+        raise SystemExit(1)
 
     if k < 2 or k > N-1:
         print("Incorrect number of clusters!")
-        return
+        raise SystemExit(1)
 
     cluster_handle(k, iter, points_arr)
     

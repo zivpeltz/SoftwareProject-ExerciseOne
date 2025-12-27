@@ -32,6 +32,15 @@ int is_digit(char *str){
     return 1;
 }
 
+int is_non_numeric(char *str){
+    int i, len = find_string_length(str);
+    for (i = 0 ; i < len ; i++){
+        if (!('0' <= str[i] && str[i] <=  '9') && str[i] != '.') return 0;
+    }
+    return 1;
+}
+
+
 void print_centroids(int k, int dim, double **centroids){
     int i,j;
     for (i = 0; i < k; i++){
@@ -75,6 +84,7 @@ struct vector *read_points(void){
     struct cord *head_cord, *curr_cord;
     double n;
     char c;
+    int rc;
 
     head_cord = malloc(sizeof(struct cord));
     curr_cord = head_cord;
@@ -86,18 +96,24 @@ struct vector *read_points(void){
     head_vec->cords = NULL;
 
 
-    while (scanf("%lf%c", &n, &c) == 2)
+    while ((rc = scanf("%lf%c", &n, &c)) == 2)
     {
 
         if (c == '\n')
         {
             curr_cord->value = n;
             curr_vec->cords = head_cord;
+
             curr_vec->next = malloc(sizeof(struct vector));
+            if (curr_vec->next == NULL) {
+                return NULL;
+            }
             curr_vec = curr_vec->next;
             curr_vec->next = NULL;
             curr_vec->cords = NULL;
+
             head_cord = malloc(sizeof(struct cord));
+            if (head_cord == NULL) { return NULL;}
             curr_cord = head_cord;
             curr_cord->next = NULL;
             continue;
@@ -108,7 +124,14 @@ struct vector *read_points(void){
         curr_cord = curr_cord->next;
         curr_cord->next = NULL;
     }
-
+    if (rc == 1) {
+        curr_cord->value = n;
+        curr_vec->cords = head_cord;
+    }
+    if (rc != 1 && curr_vec->cords == NULL) {
+        free(head_cord);
+        head_cord = NULL;
+    }
     return head_vec;
 }
 
@@ -130,7 +153,19 @@ int count_points(struct vector *v){
     return count;
 }
 
-
+void free_vec_list(struct vector *v) {
+    while (v) {
+        struct vector *vn = v->next;
+        struct cord *c = v->cords;
+        while (c) {
+            struct cord *cn = c->next;
+            free(c);
+            c = cn;
+        }
+        free(v);
+        v = vn;
+    }
+}
 
 double **parse_points(){
     int dim,num_of_points;
@@ -140,9 +175,7 @@ double **parse_points(){
     struct cord *curr_cord,*temp_cord;
 
     points = read_points();
-    if (points == NULL || points->cords == NULL) {
-        return NULL;
-    }
+    if (!points || !points->cords) { free_vec_list(points); return NULL; }
 
     dim = count_dimensions(points->cords);
     num_of_points = count_points(points);
@@ -151,9 +184,7 @@ double **parse_points(){
     global_num_of_points = num_of_points;
 
     points_arr = malloc(num_of_points * sizeof(double *));
-    if (!points_arr) {
-        return NULL; /* allocation failed */
-    }
+    if (!points_arr) { free_vec_list(points); return NULL; }
 
     for ( i = 0; i < num_of_points; i++){
         points_arr[i] = malloc(dim * sizeof(double));
@@ -177,6 +208,20 @@ double **parse_points(){
             curr_cord = curr_cord->next;
             free(temp_cord);
         }
+        curr_point = curr_point->next;
+        free(temp_point);
+    }
+
+    while (curr_point != NULL) {
+        temp_point = curr_point;
+
+        curr_cord = curr_point->cords;
+        while (curr_cord != NULL) {
+            temp_cord = curr_cord;
+            curr_cord = curr_cord->next;
+            free(temp_cord);
+        }
+
         curr_point = curr_point->next;
         free(temp_point);
     }
@@ -260,7 +305,7 @@ void cluster_handle(int k, int iter, int num_of_points, int dim, double **points
         convergence = 1;
         for (j = 0 ; j < k ; j++){
             if (counter_arr_copy[j] == 0) {
-                updated_centroids[j] = centroids[j];
+                updated_centroids[j] = points[0];
             }
             else {
                 updated_centroids[j] = update_centroid(counter_arr_copy[j], dim, clusters[j]);
@@ -296,11 +341,11 @@ int main(int argc, char *argv[]){
     double **points;
     if (argc != 2 && argc != 3) {
         printf("An Error Has Occurred");
-        return 0;
+        return 1;
     }
     if (!is_digit(argv[1])){
         printf("Incorrect number of clusters!");
-        return 0;
+        return 1;
     }
     k = atoi(argv[1]);
     if (argc == 3){
