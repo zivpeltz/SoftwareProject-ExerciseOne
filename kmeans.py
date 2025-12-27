@@ -20,7 +20,7 @@ def parse_points():
     points_arr = []
     s = sys.stdin.readline()
     while s != "":
-        if s == "\n":
+        if s.strip() == "":
             s = sys.stdin.readline()
             continue
         temp = s.strip()
