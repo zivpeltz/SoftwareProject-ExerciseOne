@@ -259,7 +259,6 @@ static int *count_cluster_points(int k, double **centroids, double **points, int
 
 /*
  * Returns 0 on success, 1 on allocation failure (caller prints "An Error Has Occurred" and exits 1).
- * Algorithmic behavior/output is unchanged; this is only for airtight cleanup.
  */
 static int cluster_handle(int k, int iter, int num_of_points, int dim, double **points) {
     int i, j, l, curr, convergence;
